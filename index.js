@@ -4,8 +4,20 @@ const fs = require("fs");
 const path = require("path");
 const stream = require("stream");
 
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const token = process.env.BOT_TOKEN;
+// Add port for Render
+const port = process.env.PORT || 3000;
+
+// Change to webhook mode
+const bot = new TelegramBot(token, {
+  webHook: {
+    port: port,
+  },
+});
+
+// Set webhook URL
+const url = process.env.RENDER_EXTERNAL_URL;
+bot.setWebHook(`${url}/bot${token}`);
 
 const tempDir = path.join(__dirname, "temp");
 
@@ -31,6 +43,7 @@ bot.on("message", async (msg) => {
       const outputPath = path.join(tempDir, `${safeTitle}.mp3`);
 
       // Download to temp file
+      const sending = await bot.sendMessage(chatId, "Sending " + info.title);
       await youtubedl(videoUrl, {
         extractAudio: true,
         audioFormat: "mp3",
@@ -43,11 +56,15 @@ bot.on("message", async (msg) => {
       await bot.sendAudio(
         chatId,
         outputPath,
-        {},
         {
-          filename: `${info.title}.mp3`,
+          title: info.title,
+        },
+        {
+          filename: `${info.title}`,
         }
       );
+      await bot.deleteMessage(chatId, msg.message_id);
+      await bot.deleteMessage(chatId, sending.message_id);
 
       // Clean up - delete temp file
       fs.unlinkSync(outputPath);

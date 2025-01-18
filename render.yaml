@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: youtube-dl-bot
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: BOT_TOKEN
+        value: 8169887310:AAH2UJZbQBn7KZvPP1vW0QkIWl9nUY4y7HY
