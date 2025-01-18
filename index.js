@@ -41,7 +41,6 @@ bot.on("message", async (msg) => {
       const info = await youtubedl(videoUrl, {
         dumpSingleJson: true,
         cookiesFromBrowser: "brave",
-        cookiesBrowserPath: "~/.config/BraveSoftware/Brave-Browser",
       });
 
       const safeTitle = info.title.replace(/[^a-zA-Z0-9]/g, "_");
@@ -57,7 +56,6 @@ bot.on("message", async (msg) => {
         restrictFilenames: true,
         noPlaylist: true,
         cookiesFromBrowser: "brave",
-        cookiesBrowserPath: "~/.config/BraveSoftware/Brave-Browser",
       });
 
       // Send file to Telegram
