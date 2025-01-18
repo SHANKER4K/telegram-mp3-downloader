@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const stream = require("stream");
 
-const token = "8169887310:AAH2UJZbQBn7KZvPP1vW0QkIWl9nUY4y7HY"; // Store token in environment variable
+const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const tempDir = path.join(__dirname, "temp");
