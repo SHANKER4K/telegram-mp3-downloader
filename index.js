@@ -37,19 +37,27 @@ bot.on("message", async (msg) => {
 
   if (msg.text.match(/(https:\/\/)?(youtu\.be\/|youtube\.com\/).*/g)) {
     try {
-      // Get video info first
-      const info = await youtubedl(videoUrl, { dumpSingleJson: true });
-      const safeTitle = info.title.replace(/[^a-zA-Z0-9]/g, "_"); // Sanitize filename
+      // Get video info with cookies
+      const info = await youtubedl(videoUrl, {
+        dumpSingleJson: true,
+        cookiesFromBrowser: "brave",
+        cookiesBrowserPath: "~/.config/BraveSoftware/Brave-Browser",
+      });
+
+      const safeTitle = info.title.replace(/[^a-zA-Z0-9]/g, "_");
       const outputPath = path.join(tempDir, `${safeTitle}.mp3`);
 
-      // Download to temp file
       const sending = await bot.sendMessage(chatId, "Sending " + info.title);
+
+      // Download with cookies
       await youtubedl(videoUrl, {
         extractAudio: true,
         audioFormat: "mp3",
         output: outputPath,
         restrictFilenames: true,
         noPlaylist: true,
+        cookiesFromBrowser: "brave",
+        cookiesBrowserPath: "~/.config/BraveSoftware/Brave-Browser",
       });
 
       // Send file to Telegram
@@ -72,10 +80,17 @@ bot.on("message", async (msg) => {
       console.log("Audio sent successfully!");
     } catch (error) {
       console.error("Error:", error);
-      await bot.sendMessage(
-        chatId,
-        "Sorry, there was an error processing your request."
-      );
+      if (error.message.includes("Sign in to confirm")) {
+        await bot.sendMessage(
+          chatId,
+          "This video requires authentication. Please try another video."
+        );
+      } else {
+        await bot.sendMessage(
+          chatId,
+          "Sorry, there was an error processing your request."
+        );
+      }
     }
   } else if (msg.text !== "/start") {
     bot.sendMessage(chatId, "The link is not from YouTube.");
